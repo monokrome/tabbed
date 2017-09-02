@@ -103,8 +103,6 @@ static void expose(const XEvent *e);
 static void focus(int c);
 static void focusin(const XEvent *e);
 static void focusonce(const Arg *arg);
-static void focusurgent(const Arg *arg);
-static void fullscreen(const Arg *arg);
 static char *getatom(int a);
 static int getclient(Window w);
 static XftColor getcolor(const char *colstr);
@@ -128,7 +126,6 @@ static void setup(void);
 static void sigchld(int unused);
 static void spawn(const Arg *arg);
 static int textnw(const char *text, unsigned int len);
-static void toggle(const Arg *arg);
 static void unmanage(int c);
 static void unmapnotify(const XEvent *e);
 static void updatenumlockmask(void);
@@ -495,37 +492,6 @@ void
 focusonce(const Arg *arg)
 {
 	nextfocus = True;
-}
-
-void
-focusurgent(const Arg *arg)
-{
-	int c;
-
-	if (sel < 0)
-		return;
-
-	for (c = (sel + 1) % nclients; c != sel; c = (c + 1) % nclients) {
-		if (clients[c]->urgent) {
-			focus(c);
-			return;
-		}
-	}
-}
-
-void
-fullscreen(const Arg *arg)
-{
-	XEvent e;
-
-	e.type = ClientMessage;
-	e.xclient.window = win;
-	e.xclient.message_type = wmatom[WMState];
-	e.xclient.format = 32;
-	e.xclient.data.l[0] = 2;
-	e.xclient.data.l[1] = wmatom[WMFullscreen];
-	e.xclient.data.l[2] = 0;
-	XSendEvent(dpy, root, False, SubstructureNotifyMask, &e);
 }
 
 char *
@@ -1105,12 +1071,6 @@ textnw(const char *text, unsigned int len)
 	XGlyphInfo ext;
 	XftTextExtentsUtf8(dpy, dc.font.xfont, (XftChar8 *) text, len, &ext);
 	return ext.xOff;
-}
-
-void
-toggle(const Arg *arg)
-{
-    *(Bool*) arg->v = !*(Bool*) arg->v;
 }
 
 void
